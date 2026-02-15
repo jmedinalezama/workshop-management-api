@@ -19,6 +19,22 @@ import com.workshop.management_api.dto.response.commom.ErrorResponse;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+  @ExceptionHandler(ResourceNotFoundException.class)
+  public ResponseEntity<ApiResponse<ErrorResponse>> handleResourceNotFoundException(
+    ResourceNotFoundException ex
+  ) {
+
+    ErrorResponse errorResponse = new ErrorResponse(
+      HttpStatus.NOT_FOUND.value(), 
+      ex.getMessage(), 
+      LocalDateTime.now()
+    );
+
+    return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(ApiResponse.error(errorResponse));
+  }
+
   @ExceptionHandler(DuplicateResourceException.class)
   public ResponseEntity<ApiResponse<ErrorResponse>> handleDuplicateResourceException(
     DuplicateResourceException ex

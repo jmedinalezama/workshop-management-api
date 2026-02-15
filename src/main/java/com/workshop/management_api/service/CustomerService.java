@@ -7,6 +7,7 @@ import com.workshop.management_api.domain.entity.Customer;
 import com.workshop.management_api.dto.request.customer.CustomerRequest;
 import com.workshop.management_api.dto.response.customer.CustomerResponse;
 import com.workshop.management_api.exception.DuplicateResourceException;
+import com.workshop.management_api.exception.ResourceNotFoundException;
 import com.workshop.management_api.mapper.CustomerMapper;
 import com.workshop.management_api.repository.CustomerRepository;
 
@@ -39,6 +40,14 @@ public class CustomerService {
     Customer customer = customerMapper.toEntity(request);
     Customer savedCustomer = customerRepository.save(customer);
     return customerMapper.toResponse(savedCustomer);
+  }
+
+  @Transactional(readOnly = true)
+  public CustomerResponse getCustomerById(Long id) {
+    Customer customer = customerRepository.findById(id)
+      .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + id));
+    
+    return customerMapper.toResponse(customer);
   }
 
 }
