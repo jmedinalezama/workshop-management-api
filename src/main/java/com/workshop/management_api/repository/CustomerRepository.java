@@ -9,5 +9,8 @@ import com.workshop.management_api.domain.entity.Customer;
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
   // metodos personalizados
+  boolean existsByDocumentNumber(String documentNumber);
+
+  boolean existsByEmail(String email);
 
 }

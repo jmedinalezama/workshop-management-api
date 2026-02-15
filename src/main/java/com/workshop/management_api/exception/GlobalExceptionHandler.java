@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -17,6 +18,23 @@ import com.workshop.management_api.dto.response.commom.ErrorResponse;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+  @ExceptionHandler(DuplicateResourceException.class)
+  public ResponseEntity<ApiResponse<ErrorResponse>> handleDuplicateResourceException(
+    DuplicateResourceException ex
+  ) {
+
+    ErrorResponse errorResponse = new ErrorResponse(
+      HttpStatus.CONFLICT.value(),
+      ex.getMessage(),
+      LocalDateTime.now()
+    );
+
+    return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(ApiResponse.error(errorResponse));
+  }
+
 
   @ExceptionHandler(AuthenticationException.class)
   public ResponseEntity<ApiResponse<ErrorResponse>> handleAuthenticationException(
@@ -63,6 +81,40 @@ public class GlobalExceptionHandler {
     return ResponseEntity
               .status(HttpStatus.BAD_REQUEST.value())
               .body(ApiResponse.error(errors));
+  }
+
+  @ExceptionHandler(DataIntegrityViolationException.class)
+  public ResponseEntity<ApiResponse<ErrorResponse>> handleDataIntegrityViolationException(
+    DataIntegrityViolationException ex
+  ) {
+
+    ErrorResponse errorResponse = new ErrorResponse(
+      HttpStatus.CONFLICT.value(),
+      "Data integrity violation. Please check your request body.",
+      LocalDateTime.now()
+    );
+
+    return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(ApiResponse.error(errorResponse));
+  }
+
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<ApiResponse<ErrorResponse>> handleGenericException(
+    Exception ex
+  ) {
+
+    ex.printStackTrace();
+    
+    ErrorResponse error = new ErrorResponse(
+      HttpStatus.INTERNAL_SERVER_ERROR.value(),
+      "An unexpected error occurred. " + ex.getMessage() + " - " + ex.getClass().getName(),
+      LocalDateTime.now()
+    );
+
+    return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(ApiResponse.error(error));
   }
 
 }
